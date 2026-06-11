@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiniela Mundial 2026</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+:root{--pitch:#0A3A2A;--pitch2:#0E4A36;--line:#EDE8DA;--gold:#F5B82E;--coral:#E4572E;--ink:#10241C;--mut:#7FA092}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:var(--pitch);color:var(--line);font-family:'Inter',sans-serif;padding-bottom:64px}
+.head{padding:26px 16px 14px;border-bottom:3px solid var(--gold);background:repeating-linear-gradient(90deg,var(--pitch) 0 60px,var(--pitch2) 60px 120px)}
+h1{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:42px;line-height:.95;letter-spacing:.5px;text-transform:uppercase;margin:0}
+h1 em{color:var(--gold);font-style:normal}
+.sub{margin:6px 0 0;color:var(--mut);font-size:13px}
+.sub strong{color:var(--line)}
+.tabs{display:flex;gap:6px;padding:12px 14px;overflow-x:auto;border-bottom:1px solid #1d5942}
+.tab{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;background:none;border:1px solid #2a6a50;color:var(--line);padding:7px 14px;border-radius:999px;cursor:pointer;white-space:nowrap}
+.tab.on{background:var(--gold);color:var(--ink);border-color:var(--gold)}
+.tab:focus-visible,.btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.wrap{max-width:760px;margin:0 auto;padding:16px 14px}
+.card{background:var(--pitch2);border:1px solid #1d5942;border-radius:12px;padding:14px;margin-bottom:12px}
+.banner{background:#5a2417;border:1px solid var(--coral);border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:13px;line-height:1.5}
+.stage{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin:18px 0 8px}
+.match{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px}
+.team{font-weight:600;font-size:15px}
+.team.away{text-align:right}
+.score{display:flex;align-items:center;gap:5px}
+.score input{width:46px;height:48px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;color:var(--gold);background:var(--ink);border:1px solid #2a6a50;border-radius:8px}
+.score input:disabled{opacity:.55}
+.score span{color:var(--mut);font-weight:700}
+.meta{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;font-size:12px;color:var(--mut);flex-wrap:wrap}
+.pts5{color:var(--gold);font-weight:700}.pts3{color:#8FD3A8;font-weight:700}.pts0{color:var(--coral);font-weight:700}
+.btn{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;background:var(--gold);color:var(--ink);border:none;border-radius:8px;padding:9px 16px;cursor:pointer}
+.btn.ghost{background:none;border:1px solid #2a6a50;color:var(--line)}
+.btn.sm{padding:5px 12px;font-size:14px}
+.btn:disabled{opacity:.5;cursor:default}
+.input{background:var(--ink);border:1px solid #2a6a50;border-radius:8px;color:var(--line);padding:10px 12px;font-size:15px;width:100%}
+table{width:100%;border-collapse:collapse}
+th{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:1px;font-size:13px;color:var(--mut);text-align:left;padding:8px 6px;border-bottom:1px solid #2a6a50}
+td{padding:9px 6px;border-bottom:1px solid #1d5942;font-size:14px}
+.rank1 td{color:var(--gold);font-weight:600}
+.note{font-size:12px;color:var(--mut);line-height:1.5}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--ink);font-weight:600;padding:10px 18px;border-radius:999px;font-size:14px;z-index:9;display:none;max-width:90vw;text-align:center}
+.pill{display:inline-block;font-size:11px;border:1px solid #2a6a50;border-radius:999px;padding:2px 8px;color:var(--mut);margin-left:6px}
+.pill.lock{border-color:var(--coral);color:var(--coral)}
+.pill.live{border-color:var(--gold);color:var(--gold)}
+.picks{margin-top:10px;border-top:1px dashed #2a6a50;padding-top:8px;font-size:13px;color:var(--mut)}
+.picks b{color:var(--line);font-weight:600}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:480px){.grid2{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:no-preference){.toast.show{animation:pop .2s ease}@keyframes pop{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}}
+</style>
+</head>
+<body>
+<header class="head">
+  <h1>Quiniela <em>Mundial 2026</em></h1>
+  <p class="sub" id="subline">104 partidos · exacto 5 pts · resultado 3 pts</p>
+</header>
+<nav class="tabs" id="tabs" style="display:none"></nav>
+<main class="wrap" id="app">Cargando quiniela…</main>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* ============================================================
+   CONFIGURACIÓN — pega aquí la URL de tu Apps Script (/exec)
+   ============================================================ */
+var API_URL = "https://script.google.com/macros/s/AKfycbxa5eJLcFqoiBCfdz8V0XBrk7Bf3egCeljMnv46Qj0aSWmSo8bjBE0BFU6NHQ2QunOX/exec";
+
+var PTS_EXACTO = 5, PTS_RESULTADO = 3;
+var LOCK_MS = 5 * 60 * 1000; // bloqueo 5 min antes del kickoff
+var KEYS = { users:'wc26p_users', admin:'wc26p_admin', over:'wc26p_overrides', res:'wc26p_results',
+  pred:function(n){ return 'wc26p_preds:'+slug(n); } };
+
+/* Grupos oficiales (sorteo 5-dic-2025; repechajes cerrados 31-mar-2026) */
+var GROUPS = {
+  A:["México","Corea del Sur","Chequia","Sudáfrica"],
+  B:["Suiza","Canadá","Qatar","Bosnia y Herz."],
+  C:["Brasil","Marruecos","Haití","Escocia"],
+  D:["Estados Unidos","Turquía","Australia","Paraguay"],
+  E:["Alemania","Ecuador","Costa de Marfil","Curazao"],
+  F:["Países Bajos","Japón","Suecia","Túnez"],
+  G:["Bélgica","Egipto","Irán","Nueva Zelanda"],
+  H:["España","Cabo Verde","Arabia Saudita","Uruguay"],
+  I:["Francia","Senegal","Irak","Noruega"],
+  J:["Argentina","Argelia","Austria","Jordania"],
+  K:["Portugal","RD Congo","Uzbekistán","Colombia"],
+  L:["Inglaterra","Croacia","Ghana","Panamá"]
+};
+function buildFixture(){
+  var out=[], n=1;
+  Object.keys(GROUPS).forEach(function(g){
+    var t=GROUPS[g];
+    [[t[0],t[3],1],[t[1],t[2],1],[t[0],t[2],2],[t[3],t[1],2],[t[0],t[1],3],[t[2],t[3],3]]
+      .forEach(function(p){ out.push({id:'G'+g+'-'+(n++),stage:'Grupo '+g,j:p[2],home:p[0],away:p[1],kickoff:''}); });
+  });
+  var k=1;
+  [['16vos',16],['8vos',8],['4tos',4],['Semifinal',2],['3er lugar',1],['Final',1]]
+    .forEach(function(s){ for(var i=0;i<s[1];i++) out.push({id:'KO-'+(k++),stage:s[0],j:0,home:'Por definir',away:'Por definir',kickoff:''}); });
+  out[0].kickoff='2026-06-11T19:00'; // Inaugural verificado: México vs Sudáfrica, Estadio Azteca
+  return out;
+}
+var BASE = buildFixture();
+
+/* ===================== HELPERS ===================== */
+function slug(s){ return s.trim().toLowerCase().replace(/[^a-z0-9áéíóúñü]+/gi,'_'); }
+function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function hash(s){ var h=5381; for(var i=0;i<s.length;i++){ h=((h<<5)+h+s.charCodeAt(i))>>>0; } return h.toString(36); }
+function apiConfigured(){ return /^https:\/\/script\.google(usercontent)?\.com\//.test(API_URL); }
+function parseJ(s){ if(s===null||s===undefined||s==='') return null; try{ return JSON.parse(s); }catch(e){ return null; } }
+
+/* Lee TODO el almacén en una sola petición */
+async function apiAll(){
+  if(!apiConfigured()) throw new Error('NO_API');
+  var r=await fetch(API_URL+'?action=all',{method:'GET'});
+  var j=await r.json();
+  if(!j.ok) throw new Error(j.error||'READ_FAIL');
+  return j.data||{};
+}
+/* Escribe una clave (POST text/plain evita el preflight CORS) */
+async function apiSet(key,obj){
+  if(!apiConfigured()) throw new Error('NO_API');
+  var r=await fetch(API_URL,{method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({action:'set',key:key,value:JSON.stringify(obj)})});
+  var j=await r.json();
+  if(!j.ok) throw new Error(j.error||'SET_FAIL');
+  return true;
+}
+function outcome(h,a){ return h>a?'H':(a>h?'A':'D'); }
+function pointsFor(p,r){ if(!p||!r) return null;
+  if(p[0]===r[0]&&p[1]===r[1]) return PTS_EXACTO;
+  return outcome(p[0],p[1])===outcome(r[0],r[1])?PTS_RESULTADO:0; }
+function isLocked(m){ if(!m.kickoff) return false; return Date.now() >= new Date(m.kickoff).getTime() - LOCK_MS; }
+function fmtKick(k){ if(!k) return 'Fecha por confirmar';
+  try{ return new Date(k).toLocaleString('es-MX',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}); }
+  catch(e){ return k; } }
+function toast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.style.display='block'; t.classList.add('show');
+  clearTimeout(t._t); t._t=setTimeout(function(){ t.style.display='none'; t.classList.remove('show'); },2800); }
+function explain(e){
+  if(e && e.message==='NO_API') return 'Falta configurar la URL del backend (API_URL) en el archivo HTML.';
+  if(e && (e.message==='SET_FAIL'||e.message==='READ_FAIL')) return 'El backend respondió con error. Revisa la implementación del Apps Script.';
+  if(e && /fetch|network|Failed/i.test(String(e.message))) return 'Sin conexión con el backend. Revisa tu internet o la URL del Apps Script.';
+  return 'Error inesperado: '+(e && e.message ? e.message : e);
+}
+
+/* ===================== ESTADO ===================== */
+var S = { view:'login', me:'', isAdmin:false, users:{}, adminRec:null, overrides:{}, results:{}, myPreds:{}, allPreds:{}, editCal:false, adminSetupPending:false, busy:false };
+function fixture(){ return BASE.map(function(m){ return Object.assign({}, m, S.overrides[m.id]||{}); }); }
+
+/* Una sola lectura refresca todo el estado compartido */
+async function loadShared(){
+  var all=await apiAll();
+  S.users=parseJ(all[KEYS.users])||{};
+  S.adminRec=parseJ(all[KEYS.admin]);
+  S.overrides=parseJ(all[KEYS.over])||{};
+  S.results=parseJ(all[KEYS.res])||{};
+  S.allPreds={};
+  Object.keys(S.users).forEach(function(n){ S.allPreds[n]=parseJ(all[KEYS.pred(n)])||{}; });
+  if(S.me && S.users[S.me]) S.myPreds=S.allPreds[S.me]||{};
+}
+
+/* ===================== AUTH ===================== */
+async function doLogin(){
+  if(S.busy) return;
+  var name=document.getElementById('lg-name').value.trim();
+  var pin=document.getElementById('lg-pin').value;
+  if(!name||pin.length<4) return toast('Escribe tu nombre y un PIN de al menos 4 caracteres');
+  S.busy=true; toast('Conectando…');
+  try{
+    await loadShared();
+    var rec=S.users[name];
+    if(rec){
+      if(rec.pin!==hash(pin)){ S.busy=false; return toast('PIN incorrecto para '+name); }
+    } else {
+      if(Object.keys(S.users).length>=15){ S.busy=false; return toast('La quiniela está llena (15 cupos)'); }
+      S.users[name]={pin:hash(pin),since:Date.now()};
+      await apiSet(KEYS.users,S.users);
+      toast('Usuario creado: '+name);
+    }
+    S.me=name; S.isAdmin=false;
+    S.myPreds=S.allPreds[name]||{};
+    S.view='partidos'; render();
+  }catch(e){ toast(explain(e)); }
+  S.busy=false;
+}
+async function doAdmin(){
+  if(S.busy) return;
+  var pin=document.getElementById('ad-pin').value;
+  if(pin.length<4) return toast('El PIN maestro necesita al menos 4 caracteres');
+  S.busy=true; toast('Conectando…');
+  try{
+    await loadShared();
+    if(!S.adminRec){
+      if(!S.adminSetupPending){
+        S.adminSetupPending=true; S.busy=false;
+        document.getElementById('ad-btn').textContent='Confirmar PIN maestro';
+        return toast('No existe administrador aún. Pulsa de nuevo para fijar este PIN como maestro.');
+      }
+      S.adminRec={pin:hash(pin)};
+      await apiSet(KEYS.admin,S.adminRec);
+      toast('PIN de administrador establecido');
+    } else if(S.adminRec.pin!==hash(pin)){
+      S.adminSetupPending=false; S.busy=false;
+      return toast('PIN de administrador incorrecto');
+    }
+    S.adminSetupPending=false;
+    S.isAdmin=true;
+    if(!S.me) S.me='(admin)';
+    S.view='resultados'; render();
+  }catch(e){ toast(explain(e)); }
+  S.busy=false;
+}
+function logout(){ S.view='login'; S.me=''; S.isAdmin=false; S.myPreds={}; S.adminSetupPending=false; render(); }
+
+/* ===================== ACCIONES ===================== */
+async function savePred(id){
+  if(S.busy) return;
+  var m=fixture().filter(function(x){return x.id===id;})[0];
+  if(isLocked(m)){ render(); return toast('Partido cerrado: faltan menos de 5 minutos'); }
+  if(S.results[id]){ render(); return toast('Este partido ya tiene resultado'); }
+  var h=document.getElementById('p-'+id+'-h').value, a=document.getElementById('p-'+id+'-a').value;
+  if(h===''||a===''||isNaN(+h)||isNaN(+a)) return toast('Captura ambos marcadores');
+  S.myPreds[id]=[Math.max(0,+h|0),Math.max(0,+a|0)];
+  S.busy=true; toast('Guardando…');
+  try{ await apiSet(KEYS.pred(S.me),S.myPreds); S.allPreds[S.me]=S.myPreds; toast('Pronóstico guardado'); }
+  catch(e){ toast(explain(e)); }
+  S.busy=false;
+}
+async function saveResult(id){
+  if(S.busy) return;
+  if(!S.isAdmin) return toast('Solo el administrador captura resultados');
+  var h=document.getElementById('r-'+id+'-h').value, a=document.getElementById('r-'+id+'-a').value;
+  if(h===''&&a===''){ delete S.results[id]; }
+  else if(h===''||a===''||isNaN(+h)||isNaN(+a)) return toast('Captura ambos marcadores (o vacía ambos para borrar)');
+  else S.results[id]=[Math.max(0,+h|0),Math.max(0,+a|0)];
+  S.busy=true; toast('Guardando…');
+  try{ await apiSet(KEYS.res,S.results); await loadShared(); render(); toast('Resultado actualizado'); }
+  catch(e){ toast(explain(e)); }
+  S.busy=false;
+}
+async function saveOver(id,field,value){
+  if(!S.isAdmin) return;
+  S.overrides[id]=Object.assign({},S.overrides[id]);
+  S.overrides[id][field]=value;
+  try{ await apiSet(KEYS.over,S.overrides); toast('Calendario actualizado'); }
+  catch(e){ toast(explain(e)); }
+}
+
+/* ===================== TABLA ===================== */
+function standings(){
+  return Object.keys(S.users).map(function(pl){
+    var preds=S.allPreds[pl]||{}, pts=0,ex=0,ac=0,jug=0;
+    Object.keys(S.results).forEach(function(id){
+      var p=pointsFor(preds[id],S.results[id]); if(p===null) return;
+      jug++; pts+=p; if(p===PTS_EXACTO)ex++; if(p===PTS_RESULTADO)ac++;
+    });
+    var ef=jug?Math.round(100*(ex+ac)/jug):0;
+    return {pl:pl,pts:pts,ex:ex,ac:ac,jug:jug,ef:ef};
+  }).sort(function(a,b){ return b.pts-a.pts || b.ex-a.ex; });
+}
+
+/* ===================== RENDER ===================== */
+function scoreInputs(prefix,id,vals,disabled,lh,la){
+  return '<div class="score">'
+    +'<input inputmode="numeric" id="'+prefix+'-'+id+'-h" aria-label="Goles '+esc(lh)+'" value="'+(vals?vals[0]:'')+'" '+(disabled?'disabled':'')+'>'
+    +'<span>–</span>'
+    +'<input inputmode="numeric" id="'+prefix+'-'+id+'-a" aria-label="Goles '+esc(la)+'" value="'+(vals?vals[1]:'')+'" '+(disabled?'disabled':'')+'>'
+    +'</div>';
+}
+function picksPanel(m){
+  if(!isLocked(m) && !S.results[m.id]) return '';
+  var res=S.results[m.id];
+  var rows=Object.keys(S.users).map(function(pl){
+    var p=(S.allPreds[pl]||{})[m.id];
+    var pt=res?pointsFor(p,res):null;
+    var tag=pt===null?'':(pt===PTS_EXACTO?' <span class="pts5">+'+PTS_EXACTO+'</span>':(pt===PTS_RESULTADO?' <span class="pts3">+'+PTS_RESULTADO+'</span>':' <span class="pts0">+0</span>'));
+    return '<div><b>'+esc(pl)+'</b>: '+(p?p[0]+'–'+p[1]:'sin pronóstico')+tag+'</div>';
+  }).join('');
+  return '<div class="picks">Pronósticos (visibles al cierre):'+(rows||' nadie pronosticó')+'</div>';
+}
+function matchCards(mode){
+  var last='', html='';
+  fixture().forEach(function(m){
+    var res=S.results[m.id], pred=S.myPreds[m.id], locked=isLocked(m);
+    if(m.stage!==last){ html+='<h3 class="stage">'+esc(m.stage)+'</h3>'; last=m.stage; }
+    var right='', inputs='';
+    if(mode==='pred'){
+      inputs=scoreInputs('p',m.id,pred,locked||!!res,m.home,m.away);
+      if(res){
+        var pt=pointsFor(pred,res);
+        right = pt===null ? '<span class="note">Resultado '+res[0]+'–'+res[1]+' · sin pronóstico</span>'
+          : '<span class="pts'+pt+'">'+res[0]+'–'+res[1]+' · '+(pt===PTS_EXACTO?'Exacto':(pt===PTS_RESULTADO?'Resultado':'Fallaste'))+' +'+pt+'</span>';
+      } else if(locked){ right='<span class="pill lock">Cerrado</span>'; }
+      else { right='<button class="btn ghost sm" data-act="pred" data-id="'+m.id+'">'+(pred?'Actualizar':'Guardar')+'</button>'; }
+    } else {
+      inputs=scoreInputs('r',m.id,res,!S.isAdmin,m.home,m.away);
+      right = S.isAdmin
+        ? '<button class="btn ghost sm" data-act="result" data-id="'+m.id+'">'+(res?'Corregir':'Capturar')+'</button>'
+        : (res?'<span class="pill">Final</span>':(locked?'<span class="pill live">En juego</span>':'<span class="pill">Pendiente</span>'));
+    }
+    html+='<div class="card">'
+      +'<div class="match"><div class="team">'+esc(m.home)+'</div>'+inputs+'<div class="team away">'+esc(m.away)+'</div></div>'
+      +'<div class="meta"><span>'+fmtKick(m.kickoff)+(m.j?'<span class="pill">J'+m.j+'</span>':'')+(locked&&!res?'<span class="pill lock">Bloqueado</span>':'')+'</span>'+right+'</div>'
+      +picksPanel(m)+'</div>';
+  });
+  return html;
+}
+function calCards(){
+  return fixture().map(function(m){
+    if(S.isAdmin && S.editCal){
+      return '<div class="card"><span class="note">'+esc(m.stage)+' · '+m.id+'</span>'
+        +'<div class="grid2" style="margin-top:8px">'
+        +'<input class="input" value="'+esc(m.home)+'" aria-label="Local" data-over="home" data-id="'+m.id+'">'
+        +'<input class="input" value="'+esc(m.away)+'" aria-label="Visitante" data-over="away" data-id="'+m.id+'">'
+        +'</div>'
+        +'<input class="input" type="datetime-local" value="'+(m.kickoff||'')+'" aria-label="Fecha y hora" style="margin-top:8px" data-over="kickoff" data-id="'+m.id+'">'
+        +'</div>';
+    }
+    return '<div class="card"><div class="match">'
+      +'<div class="team">'+esc(m.home)+'</div>'
+      +'<div class="note" style="text-align:center">'+fmtKick(m.kickoff)+'<br><span class="pill">'+esc(m.stage)+'</span></div>'
+      +'<div class="team away">'+esc(m.away)+'</div></div></div>';
+  }).join('');
+}
+function render(){
+  var app=document.getElementById('app'), tabs=document.getElementById('tabs'), sub=document.getElementById('subline');
+  var warn = apiConfigured()?'':'<div class="banner"><strong>Backend sin configurar.</strong> Edita el archivo HTML y pega en la constante <code>API_URL</code> la URL /exec de tu Apps Script.</div>';
+  if(S.view==='login'){
+    tabs.style.display='none';
+    sub.innerHTML='104 partidos · exacto '+PTS_EXACTO+' pts · resultado '+PTS_RESULTADO+' pts';
+    app.innerHTML=warn
+      +'<div class="card">'
+      +'<p style="margin-top:0"><strong>Participantes.</strong> Entra con tu nombre y un PIN. La primera vez quedas registrado; usa siempre el mismo nombre.</p>'
+      +'<div class="grid2"><input class="input" id="lg-name" placeholder="Tu nombre"><input class="input" id="lg-pin" type="password" placeholder="PIN (4+ caracteres)"></div>'
+      +'<div style="margin-top:10px"><button class="btn" data-act="login">Entrar</button></div>'
+      +'<p class="note" style="margin-top:12px">El PIN es un candado ligero entre amigos, no seguridad real: no uses contraseñas de otros sitios. Los pronósticos de todos se vuelven visibles cuando cada partido cierra (5 min antes del silbatazo).</p>'
+      +'</div>'
+      +'<div class="card">'
+      +'<p style="margin-top:0"><strong>Administrador.</strong> Captura resultados oficiales y edita calendario y cruces de eliminación directa.</p>'
+      +'<div class="grid2"><input class="input" id="ad-pin" type="password" placeholder="PIN maestro"><button class="btn ghost" id="ad-btn" data-act="admin">Entrar como admin</button></div>'
+      +'<p class="note" style="margin-top:10px">La primera persona que entre aquí define el PIN maestro (te pedirá confirmar con un segundo clic).</p>'
+      +'</div>';
+    return;
+  }
+  var T=[['partidos','Mi quiniela'],['resultados','Resultados'],['tabla','Tabla'],['calendario','Calendario']];
+  tabs.style.display='flex';
+  tabs.innerHTML=T.map(function(t){ return '<button class="tab '+(S.view===t[0]?'on':'')+'" data-act="tab" data-id="'+t[0]+'">'+t[1]+'</button>'; }).join('');
+  sub.innerHTML='Juegas como <strong>'+esc(S.me)+'</strong>'+(S.isAdmin?' · <span style="color:var(--gold)">ADMIN</span>':'')
+    +' · exacto '+PTS_EXACTO+' / resultado '+PTS_RESULTADO
+    +' <button class="btn ghost sm" style="margin-left:8px" data-act="logout">Salir</button>';
+  if(S.view==='partidos'){
+    app.innerHTML=warn+'<p class="note">Captura tu marcador y guarda. Cada partido se bloquea automáticamente 5 minutos antes de su hora; sin hora capturada, permanece abierto. Cada guardado tarda 1–3 segundos.</p>'
+      +(S.me==='(admin)'?'<p class="note">Entraste solo como admin: para pronosticar, sal y entra también como participante.</p>':'')
+      +matchCards('pred');
+  } else if(S.view==='resultados'){
+    app.innerHTML=warn+'<p class="note">'+(S.isAdmin?'Captura el marcador final; la tabla se recalcula para todos. Vacía ambas casillas y guarda para borrar un resultado.':'Solo el administrador captura resultados. Aquí ves el avance y los pronósticos de todos al cierre de cada partido.')+'</p>'+matchCards('res');
+  } else if(S.view==='tabla'){
+    var st=standings();
+    app.innerHTML=warn+'<div class="card"><table>'
+      +'<thead><tr><th>#</th><th>Participante</th><th>Pts</th><th>Exactos</th><th>Resultados</th><th>Jugados</th><th>Efectividad</th></tr></thead><tbody>'
+      +(st.map(function(s,i){ return '<tr class="'+(i===0&&s.pts>0?'rank1':'')+'"><td>'+(i+1)+'</td><td>'+esc(s.pl)+(s.pl===S.me?' (tú)':'')+'</td><td>'+s.pts+'</td><td>'+s.ex+'</td><td>'+s.ac+'</td><td>'+s.jug+'</td><td>'+s.ef+'%</td></tr>'; }).join('')||'<tr><td colspan=7>Aún no hay participantes.</td></tr>')
+      +'</tbody></table><p class="note" style="margin-top:10px">Desempate: más marcadores exactos. Efectividad = partidos con puntos / partidos jugados. Actualiza sola cada minuto.</p></div>';
+  } else if(S.view==='calendario'){
+    app.innerHTML=warn+'<div class="card"><p class="note" style="margin-top:0">Los 12 grupos son oficiales; verifica emparejamientos y horas contra el calendario de FIFA. Los 32 partidos de eliminación directa (16vos a Final) se editan aquí cuando se definan los clasificados.</p>'
+      +(S.isAdmin?'<button class="btn" data-act="editcal">'+(S.editCal?'Terminar edición':'Editar calendario')+'</button>':'<span class="pill">Solo lectura — el admin edita</span>')
+      +'</div>'+calCards();
+  }
+}
+
+/* ===================== EVENTOS (delegación) ===================== */
+document.addEventListener('click', function(ev){
+  var el=ev.target.closest('[data-act]');
+  if(!el) return;
+  var act=el.getAttribute('data-act'), id=el.getAttribute('data-id');
+  if(act==='login') doLogin();
+  else if(act==='admin') doAdmin();
+  else if(act==='logout') logout();
+  else if(act==='tab'){ S.view=id; S.editCal=false; render(); }
+  else if(act==='editcal'){ S.editCal=!S.editCal; render(); }
+  else if(act==='pred') savePred(id);
+  else if(act==='result') saveResult(id);
+});
+document.addEventListener('keydown', function(ev){
+  if(ev.key!=='Enter') return;
+  if(ev.target.id==='lg-pin'||ev.target.id==='lg-name') doLogin();
+  if(ev.target.id==='ad-pin') doAdmin();
+});
+document.addEventListener('change', function(ev){
+  var el=ev.target;
+  if(el.hasAttribute('data-over')) saveOver(el.getAttribute('data-id'), el.getAttribute('data-over'), el.value);
+});
+document.addEventListener('blur', function(ev){
+  var el=ev.target;
+  if(el.hasAttribute && el.hasAttribute('data-over') && el.type!=='datetime-local')
+    saveOver(el.getAttribute('data-id'), el.getAttribute('data-over'), el.value);
+}, true);
+
+/* refresco periódico: recoge resultados nuevos y aplica bloqueos por hora */
+setInterval(async function(){
+  if(S.view==='login'||S.busy) return;
+  try{ await loadShared(); render(); }catch(e){}
+}, 60000);
+
+/* arranque */
+(async function init(){
+  try{ if(apiConfigured()) await loadShared(); }catch(e){}
+  render();
+})();
+</script>
+</body>
+</html>
